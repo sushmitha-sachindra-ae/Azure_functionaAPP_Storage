@@ -40,6 +40,10 @@ namespace My.Functions
   
            string queueName = "queueaz204";
                  QueueClient queueClient = new QueueClient(secret.Value,queueName);
+                   log.LogInformation("Queue name "+queueName);
+                 // Optionally create the queue if it doesn't exist
+                await queueClient.CreateIfNotExistsAsync();
+
             List<Order> orders = new List<Order>
 {
     new Order { OrderId = "1", CustomerName = "Alice", ProductName = "Laptop", Quantity = 1 },
