@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
 using Azure.Storage.Queues;
+using System.Collections.Generic;
 
 
 namespace My.Functions
@@ -25,14 +26,14 @@ namespace My.Functions
 
             string name = req.Query["name"];
 
-            string requestBody = await new StreamReader(req.    Body).ReadToEndAsync();
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
             string responseMessage = string.IsNullOrEmpty(name)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
-                 log.LogInformation("response message "+responseMessage);
+            log.LogInformation("response message " + responseMessage);
             try
             {
                 string keyVaultName = "keyvaultaz204ss";
@@ -54,18 +55,33 @@ namespace My.Functions
                 //var response = req.CreateResponse(HttpStatusCode.InternalServerError);
                 // await response.WriteStringAsync("Something went wrong.");
                 //  return OkObjectResult(ex.Message);
-              
+
 
             }
 
-              string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
-                string storageAccountName = "appstorageaz204ss";
-                QueueClient queueClient = new QueueClient(new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}"),
-                    new DefaultAzureCredential());
-                await queueClient.CreateAsync();
-                await queueClient.SendMessageAsync("sent by default credential");
+            string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
+            string storageAccountName = "appstorageaz204ss";
+            QueueClient queueClient = new QueueClient(new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}"),
+                new DefaultAzureCredential());
+            List<Order> orders = new List<Order>
+{
+    new Order { OrderId = "1", CustomerName = "Alice", ProductName = "Laptop", Quantity = 1 },
+    new Order { OrderId = "2", CustomerName = "Bob", ProductName = "Smartphone", Quantity = 2 },
+    new Order { OrderId = "3", CustomerName = "Charlie", ProductName = "Tablet", Quantity = 3 }
+};
+            string json = JsonConvert.SerializeObject(orders);
+            await queueClient.SendMessageAsync(json);
             log.LogInformation("Message is sent");
             return new OkObjectResult(responseMessage);
         }
+
+// Define the Order class
+public class Order
+{
+    public string OrderId { get; set; }
+    public string CustomerName { get; set; }
+    public string ProductName { get; set; }
+    public int Quantity { get; set; }
+}
     }
 }
