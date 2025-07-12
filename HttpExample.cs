@@ -7,6 +7,8 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
 
 namespace My.Functions
 {
@@ -29,7 +31,15 @@ namespace My.Functions
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
-            return new OkObjectResult(responseMessage);
+string keyVaultName = "keyvaultaz204ss";
+string keyVaultUri= $"https://{keyVaultName}.vault.azure.net/";
+
+var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+string secretName = "storageQueueConString";
+KeyVaultSecret secret = await secretClient.GetSecretAsync(secretName);
+Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
+string connectionString = secret.Value;
+            return new OkObjectResult(connectionString);
         }
     }
 }
