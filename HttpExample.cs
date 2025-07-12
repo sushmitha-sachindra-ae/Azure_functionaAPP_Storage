@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
 
+
 namespace My.Functions
 {
     public static class HttpExample
@@ -30,16 +31,29 @@ namespace My.Functions
             string responseMessage = string.IsNullOrEmpty(name)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
+                 log.LogInformation("response message "+responseMessage);
+            try
+            {
+                string keyVaultName = "keyvaultaz204ss";
+                string keyVaultUri = $"https://{keyVaultName}.vault.azure.net/";
+ log.LogInformation("key vault uri "+keyVaultUri);
+                var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
+                string secretName = "storageQueueConString";
+                log.LogInformation("secretname "+secretName);
+                KeyVaultSecret secret = await secretClient.GetSecretAsync(secretName);
+                Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
+                string connectionString = secret.Value;
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Unhandled exception occurred.");
+                //var response = req.CreateResponse(HttpStatusCode.InternalServerError);
+                // await response.WriteStringAsync("Something went wrong.");
+                // return OkObjectResult(response);
 
-string keyVaultName = "keyvaultaz204ss";
-string keyVaultUri= $"https://{keyVaultName}.vault.azure.net/";
 
-var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
-string secretName = "storageQueueConString";
-KeyVaultSecret secret = await secretClient.GetSecretAsync(secretName);
-Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
-string connectionString = secret.Value;
-            return new OkObjectResult(connectionString);
+            }
+            return new OkObjectResult(responseMessage);
         }
     }
 }
