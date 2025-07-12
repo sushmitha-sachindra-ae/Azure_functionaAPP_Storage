@@ -24,7 +24,7 @@ namespace My.Functions
 
             string name = req.Query["name"];
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            string requestBody = await new StreamReader(req.    Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
@@ -46,7 +46,8 @@ namespace My.Functions
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Unhandled exception occurred.");
+                
+                log.LogInformation(ex.Message);
                 //var response = req.CreateResponse(HttpStatusCode.InternalServerError);
                 // await response.WriteStringAsync("Something went wrong.");
                 // return OkObjectResult(response);
