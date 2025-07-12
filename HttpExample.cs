@@ -40,7 +40,7 @@ namespace My.Functions
                 var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
                 string secretName = "storageQueueConString";
                 log.LogInformation("secretname "+secretName);
-                KeyVaultSecret secret = await secretClient.GetSecretAsync(secretName);
+                KeyVaultSecret secret =  secretClient.GetSecret(secretName);
                 Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 string connectionString = secret.Value;
             }
