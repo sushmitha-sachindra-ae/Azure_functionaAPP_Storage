@@ -24,16 +24,7 @@ namespace My.Functions
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
-
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
-
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
-            log.LogInformation("response message " + responseMessage);
+           
             try
             {
                 string keyVaultName = "keyvaultaz204ss";
@@ -46,8 +37,8 @@ namespace My.Functions
                 Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 log.LogInformation($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 log.LogInformation(secret.Value);
-  string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
-            string storageAccountName = "appstorageaz204ss";
+  
+           string queueName = "queueaz204";
                  QueueClient queueClient = new QueueClient(secret.Value,queueName);
             List<Order> orders = new List<Order>
 {
@@ -76,14 +67,15 @@ namespace My.Functions
           
             return new OkObjectResult(responseMessage);
         }
+        
 
 // Define the Order class
-public class Order
-{
-    public string OrderId { get; set; }
-    public string CustomerName { get; set; }
-    public string ProductName { get; set; }
-    public int Quantity { get; set; }
-}
+        public class Order
+        {
+            public string OrderId { get; set; }
+            public string CustomerName { get; set; }
+            public string ProductName { get; set; }
+            public int Quantity { get; set; }
+        }
     }
 }
