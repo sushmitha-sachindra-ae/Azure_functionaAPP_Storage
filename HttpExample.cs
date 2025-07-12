@@ -42,7 +42,9 @@ namespace My.Functions
                 log.LogInformation("secretname "+secretName);
                 KeyVaultSecret secret =  secretClient.GetSecret(secretName);
                 Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
-                string connectionString = secret.Value;
+                 log.LogInformation($"Retrieved secret: {secret.Name} with value: {secret.Value}");
+                log.LogInformation(secret.Value);
+                //string connectionString = secret.Value;
             }
             catch (Exception ex)
             {
@@ -50,7 +52,7 @@ namespace My.Functions
                 log.LogInformation(ex.Message);
                 //var response = req.CreateResponse(HttpStatusCode.InternalServerError);
                 // await response.WriteStringAsync("Something went wrong.");
-                // return OkObjectResult(response);
+           //  return OkObjectResult(ex.Message);
 
 
             }
