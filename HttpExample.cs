@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
+using Azure.Storage.Queues;
 
 
 namespace My.Functions
@@ -36,26 +37,34 @@ namespace My.Functions
             {
                 string keyVaultName = "keyvaultaz204ss";
                 string keyVaultUri = $"https://{keyVaultName}.vault.azure.net/";
- log.LogInformation("key vault uri "+keyVaultUri);
+                log.LogInformation("key vault uri " + keyVaultUri);
                 var secretClient = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
                 string secretName = "storageQueueConString";
-                log.LogInformation("secretname "+secretName);
-                KeyVaultSecret secret =  secretClient.GetSecret(secretName);
+                log.LogInformation("secretname " + secretName);
+                KeyVaultSecret secret = secretClient.GetSecret(secretName);
                 Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
-                 log.LogInformation($"Retrieved secret: {secret.Name} with value: {secret.Value}");
+                log.LogInformation($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 log.LogInformation(secret.Value);
                 //string connectionString = secret.Value;
             }
             catch (Exception ex)
             {
-                
+
                 log.LogInformation(ex.Message);
                 //var response = req.CreateResponse(HttpStatusCode.InternalServerError);
                 // await response.WriteStringAsync("Something went wrong.");
-           //  return OkObjectResult(ex.Message);
-
+                //  return OkObjectResult(ex.Message);
+              
 
             }
+
+              string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
+                string storageAccountName = "appstorageaz204ss";
+                QueueClient queueClient = new QueueClient(new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}"),
+                    new DefaultAzureCredential());
+                await queueClient.CreateAsync();
+                await queueClient.SendMessageAsync("sent by default credential");
+            log.LogInformation("Message is sent");
             return new OkObjectResult(responseMessage);
         }
     }
