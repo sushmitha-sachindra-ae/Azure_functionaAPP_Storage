@@ -46,6 +46,18 @@ namespace My.Functions
                 Console.WriteLine($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 log.LogInformation($"Retrieved secret: {secret.Name} with value: {secret.Value}");
                 log.LogInformation(secret.Value);
+  string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
+            string storageAccountName = "appstorageaz204ss";
+                 QueueClient queueClient = new QueueClient(secret.Value,queueName);
+            List<Order> orders = new List<Order>
+{
+    new Order { OrderId = "1", CustomerName = "Alice", ProductName = "Laptop", Quantity = 1 },
+    new Order { OrderId = "2", CustomerName = "Bob", ProductName = "Smartphone", Quantity = 2 },
+    new Order { OrderId = "3", CustomerName = "Charlie", ProductName = "Tablet", Quantity = 3 }
+};
+            string json = JsonConvert.SerializeObject(orders);
+            await queueClient.SendMessageAsync(json);
+            log.LogInformation("Message is sent");
                 //string connectionString = secret.Value;
             }
             catch (Exception ex)
@@ -59,19 +71,9 @@ namespace My.Functions
 
             }
 
-            string queueName = "quickstartqueues" + Guid.NewGuid().ToString();
-            string storageAccountName = "appstorageaz204ss";
-            QueueClient queueClient = new QueueClient(new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}"),
-                new DefaultAzureCredential());
-            List<Order> orders = new List<Order>
-{
-    new Order { OrderId = "1", CustomerName = "Alice", ProductName = "Laptop", Quantity = 1 },
-    new Order { OrderId = "2", CustomerName = "Bob", ProductName = "Smartphone", Quantity = 2 },
-    new Order { OrderId = "3", CustomerName = "Charlie", ProductName = "Tablet", Quantity = 3 }
-};
-            string json = JsonConvert.SerializeObject(orders);
-            await queueClient.SendMessageAsync(json);
-            log.LogInformation("Message is sent");
+          
+        
+          
             return new OkObjectResult(responseMessage);
         }
 
